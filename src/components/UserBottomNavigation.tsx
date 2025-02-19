@@ -2,13 +2,9 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import HomeScreen from '../screens/HomeScreen';
 
 // Placeholder components for the tabs
-const HomeScreen = () => (
-  <View>
-    <Text>Home Screen</Text>
-  </View>
-);
 
 const SearchScreen = () => (
   <View>

@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { handleUser } from '../slice/authSlice'
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 const RegisterScreen = ({ navigation }: any) => {
     const dispatch: AppDispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth.user)
@@ -14,13 +16,35 @@ const RegisterScreen = ({ navigation }: any) => {
         dispatch(handleUser({ [name]: value }))
     }
 
+    const register = () => {
+        if (!user?.userName || (user.type === 'farmer' && (!user?.kissanId || !user?.farmName)) || !user?.userName || !user?.phone) {
+            Alert.alert('Error', 'Please fill all fields')
+            return
+        }
+        const { state, city, country, village, ...restUser } = user;
+
+        axios.post('http://192.168.198.130:5000/auth/signup', {
+            ...restUser,
+            address: { state, city, country, village }
+        }).then(res => {
+            Alert.alert('Success', res.data.message)
+            AsyncStorage.setItem('user', res.data.user)
+            AsyncStorage.setItem('isLoggedIn', 'true');
+            navigation.navigate(user?.type === 'farmer' ? 'HomeScreen' :'HomeScreen1');
+        })
+            .catch(err => {
+                Alert.alert('Error', err.message);
+                console.log(err)
+            })
+    }
+    console.log(user)
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            // behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={80}
         >
-            {/* <ScrollView style={styles.scrollContainer}> */}
+            <ScrollView >
                 <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
                 <View style={styles.wrapper}>
                     <View style={styles.header}>
@@ -32,18 +56,25 @@ const RegisterScreen = ({ navigation }: any) => {
                     <View style={styles.topSection}>
                         <Image style={{ marginBottom: 30 }} source={require('../../assets/avatar.png')} />
                         <TextInput style={styles.input} placeholder='User Name' value={user?.userName} onChangeText={val => handleChange('userName', val)} />
-                        <TextInput keyboardType='number-pad' style={styles.input} placeholder='kissan Id' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
-                        <TextInput keyboardType='number-pad' style={styles.input} placeholder='farm Name' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
+                        <TextInput style={styles.input}  secureTextEntry={true}  placeholder='Password' value={user?.password} onChangeText={val => handleChange('password', val)} />
+                        {user?.type === 'farmer' &&
+                            <>
+                                <TextInput keyboardType='number-pad' style={styles.input} placeholder='kissan Id' value={user?.kissanId as any} onChangeText={val => handleChange('kissanId', val)} />
+                                <TextInput style={styles.input} placeholder='farm Name' value={user?.farmName as any} onChangeText={val => handleChange('farmName', val)} />
+                            </>
+                        }
+
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 15, justifyContent: 'center', alignItems: 'center' }}>
-                            <TextInput keyboardType='number-pad' style={[styles.input, { width: '40%' }]} placeholder='country' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
-                            <TextInput keyboardType='number-pad' style={[styles.input, { width: '40%' }]} placeholder='state' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
-                            <TextInput keyboardType='number-pad' style={[styles.input, { width: '40%' }]} placeholder='city' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
-                            <TextInput keyboardType='number-pad' style={[styles.input, { width: '40%' }]} placeholder='village' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
+                            <TextInput style={[styles.input, { width: '40%' }]} placeholder='country' value={user?.country as any} onChangeText={val => handleChange('country', val)} />
+                            <TextInput style={[styles.input, { width: '40%' }]} placeholder='state' value={user?.state as any} onChangeText={val => handleChange('state', val)} />
+                            <TextInput style={[styles.input, { width: '40%' }]} placeholder='city' value={user?.city as any} onChangeText={val => handleChange('city', val)} />
+                            <TextInput style={[styles.input, { width: '40%' }]} placeholder='village' value={user?.village as any} onChangeText={val => handleChange('village', val)} />
                         </View>
-                        <TextInput keyboardType='number-pad' style={[styles.input, { marginTop: 15 }]} placeholder='phone' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
-                        <TouchableHighlight onPress={()=>navigation.navigate('homeScreen')} style={styles.submitBtn}><Text style={styles.submitText}>Register</Text></TouchableHighlight>
+                        <TextInput keyboardType='number-pad' style={[styles.input, { marginTop: 15 }]} placeholder='phone' value={user?.phone as any} onChangeText={val => handleChange('phone', val)} />
+                        <TouchableHighlight onPress={register} style={styles.submitBtn}><Text style={styles.submitText}>Register</Text></TouchableHighlight>
                     </View>
                 </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     )
 }
@@ -100,7 +131,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         width: "100%",
-        marginTop: 90,
+        marginTop: 10,
     },
     title: {
         fontSize: 35,

@@ -6,6 +6,20 @@ import { useDispatch, useSelector } from 'react-redux'
 import { handleUser } from '../slice/authSlice'
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Buffer } from "buffer";
+
+const decodeJWT = (token:string) => {
+  try {
+    const base64Url = token.split(".")[1]; // Get payload
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Fix encoding
+    return JSON.parse(Buffer.from(base64, "base64").toString("utf-8")); // Decode & parse JSON
+  } catch (error) {
+    console.error("Invalid JWT", error);
+    return null;
+  }
+};
 const LoginSCreen = ({ navigation }: any) => {
     const dispatch: AppDispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth.user)
@@ -13,7 +27,27 @@ const LoginSCreen = ({ navigation }: any) => {
     const handleChange = (name: string, value: string | number) => {
         dispatch(handleUser({ [name]: value }))
     }
-   
+
+    const login = () => {
+        if (!user?.phone || !user.phone) {
+            Alert.alert('Error', 'Please fill all fields')
+            return
+        }
+        axios.post('http://192.168.198.130:5000/auth/login', user
+        ).then(res => {
+            Alert.alert('Success', res.data.message)
+            const decoded = decodeJWT(res.data.token);
+            console.log(decoded)
+            AsyncStorage.setItem('user', decoded)
+            AsyncStorage.setItem('isLoggedIn', 'true');
+            navigation.navigate(user?.type === 'farmer' ? 'HomeScreen' :'HomeScreen1');
+        })
+            .catch(err => {
+                Alert.alert('Error', err.message);
+                console.log(err)
+            })
+    }
+
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
@@ -22,42 +56,42 @@ const LoginSCreen = ({ navigation }: any) => {
             </TouchableOpacity>
             <View style={styles.topSection}>
                 <Text style={styles.title}>Welcome back! Glad to see you, Again!</Text>
-                <TextInput style={styles.input} placeholder='User Name' value={user?.userName} onChangeText={val => handleChange('userName', val)} />
-                <TextInput keyboardType='number-pad' style={styles.input} placeholder='phone' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
-                <TouchableHighlight style={styles.submitBtn}><Text style={styles.submitText}>Login</Text></TouchableHighlight>
+                <TextInput style={styles.input} keyboardType='number-pad' placeholder='Phone number' value={user?.phone + ''} onChangeText={val => handleChange('phone', val)} />
+                <TextInput style={styles.input} secureTextEntry={true} placeholder='password' value={user?.password as any} onChangeText={val => handleChange('password', val)} />
+                <TouchableHighlight style={styles.submitBtn} onPress={() => login()}><Text style={styles.submitText}>Login</Text></TouchableHighlight>
             </View>
             <View style={styles.bottomAction}>
                 <Text style={{ fontSize: 16 }}>Don't have an account? </Text>
                 <TouchableOpacity onPress={()=>navigation.navigate('signupScreen')}><Text style={{ fontSize: 16, fontWeight: '500', color: '#29660C' }}>Register Now</Text></TouchableOpacity>
             </View>
         </View>
-    //     <View style={styles.container}>
-    //   {!confirmResult ? (
-    //     <>
-    //       <Text style={styles.label}>Enter Phone Number:</Text>
-    //       <TextInput
-    //         style={styles.input}
-    //         placeholder="Phone Number (e.g., +1234567890)"
-    //         value={phoneNumber}
-    //         onChangeText={setPhoneNumber}
-    //         keyboardType="phone-pad"
-    //       />
-    //       <Button title="Send Code" onPress={handleSendCode} />
-    //     </>
-    //   ) : (
-    //     <>
-    //       <Text style={styles.label}>Enter Verification Code:</Text>
-    //       <TextInput
-    //         style={styles.input}
-    //         placeholder="Verification Code"
-    //         value={verificationCode}
-    //         onChangeText={setVerificationCode}
-    //         keyboardType="numeric"
-    //       />
-    //       <Button title="Verify Code" onPress={handleVerifyCode} />
-    //     </>
-    //   )}
-    // </View>
+        //     <View style={styles.container}>
+        //   {!confirmResult ? (
+        //     <>
+        //       <Text style={styles.label}>Enter Phone Number:</Text>
+        //       <TextInput
+        //         style={styles.input}
+        //         placeholder="Phone Number (e.g., +1234567890)"
+        //         value={phoneNumber}
+        //         onChangeText={setPhoneNumber}
+        //         keyboardType="phone-pad"
+        //       />
+        //       <Button title="Send Code" onPress={handleSendCode} />
+        //     </>
+        //   ) : (
+        //     <>
+        //       <Text style={styles.label}>Enter Verification Code:</Text>
+        //       <TextInput
+        //         style={styles.input}
+        //         placeholder="Verification Code"
+        //         value={verificationCode}
+        //         onChangeText={setVerificationCode}
+        //         keyboardType="numeric"
+        //       />
+        //       <Button title="Verify Code" onPress={handleVerifyCode} />
+        //     </>
+        //   )}
+        // </View>
     )
 }
 
@@ -85,8 +119,8 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         marginBottom: 8,
-      },
-      
+    },
+
     backButton: {
         position: 'absolute',
         top: 40,
@@ -105,7 +139,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
         width: "100%",
-        marginTop:90,
+        marginTop: 90,
     },
     bottomAction: {
         height: 50,
@@ -118,18 +152,18 @@ const styles = StyleSheet.create({
         fontFamily: 'poppins',
         fontWeight: 'bold'
     },
-    submitBtn:{
-        backgroundColor:'#29660C',
-        height:60,
-        width:'85%',
-        justifyContent:'center',
-        alignItems:'center',
-        borderRadius:10,
-        marginTop:20,
+    submitBtn: {
+        backgroundColor: '#29660C',
+        height: 60,
+        width: '85%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
+        marginTop: 20,
     },
-    submitText:{
-        color:'#ffffff',
-        fontSize:18,
-        fontWeight:'bold',
+    submitText: {
+        color: '#ffffff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 })

@@ -14,6 +14,7 @@ import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import BottomNavigator from './src/components/BottomNavigation';
 import ProfileScreen from './src/screens/ProfileScreen';
+import UserBottomNavigation from './src/components/UserBottomNavigation';
 // import LoginScreen from './screens/LoginScreen';
 // import HomeScreen from './screens/HomeScreen';
 
@@ -32,10 +33,11 @@ const App = () => {
                     <Stack.Screen name="otpVerify" component={OTPverify} options={{ headerShown: false }} />
                     <Stack.Screen name="registerScreen" component={RegisterScreen} options={{ headerShown: false }} />
                     <Stack.Screen name="profileScreen" component={ProfileScreen} options={{ headerShown: false }} />
-                    <Stack.Screen name="homeScreen" component={HomeScreen} options={{ headerShown: false }} />
-                    {/* <Stack.Screen name="homeScreen2" component={BottomNavigator} options={{ headerShown: false }} /> */}
+                    {/* <Stack.Screen name="homeScreen" component={HomeScreen} options={{ headerShown: false }} /> */}
+                    <Stack.Screen name="HomeScreen" component={BottomNavigator} options={{ headerShown: false }} />
+                    <Stack.Screen name="HomeScreen1" component={UserBottomNavigation} options={{ headerShown: false }} />
                     
-                    {/* <Stack.Screen name="HomeScreen" component={HomeScreen} /> */}
+                    {/* <Stack.Screen name="HomeScreen" component={HomeScreen}  options={{ headerShown: false }} /> */}
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>

@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from "mongoose";
 
-const StockSchema = new Schema({
+const StockSchema = new mongoose.Schema({
     name: { type: String, required: true },
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
@@ -11,4 +10,5 @@ const StockSchema = new Schema({
     image: { type: String, required: true } // Path to the image file
 });
 
-module.exports = mongoose.model('Stock', StockSchema);
+const Stock = mongoose.model('Stock', StockSchema);
+export default Stock;

@@ -1,6 +1,10 @@
 import User from '../models/UserSchema.js';
 import admin from 'firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = 'form2sync'; 
 
 export const sendOtp = async (req, res) => {
     const { phone } = req.body;
@@ -43,25 +47,67 @@ export const verifyOtp = async (req, res) => {
     }
 };
 
+
+
+// Signup (Register)
 export const signup = async (req, res) => {
-    const { type, kishanId, name, address, phone } = req.body;
+    const { type, kishanId, userName, address, phone, password } = req.body;
+
+    if (!password || password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
 
     if (type === 'former' && !kishanId) {
         return res.status(400).json({ message: 'kishanId is required for former type users' });
     }
 
     try {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = new User({
             type,
-            kishanId: type === 'former' ? kishanId : undefined, // Only set kishanId for former type users
-            name,
+            kishanId: type === 'former' ? kishanId : undefined,
+            userName,
             address,
-            phone
+            phone,
+            password: hashedPassword, // Store hashed password
         });
 
         await newUser.save();
         res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message });
     }
 };
+
+// Login
+export const login = async (req, res) => {
+    const { phone, password } = req.body;
+
+    if (!phone || !password) {
+        return res.status(400).json({ message: 'Phone and password are required' });
+    }
+
+    try {
+        const user = await User.findOne({ phone });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Compare hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
+
+        res.status(200).json({ message: 'Login successful', token });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+

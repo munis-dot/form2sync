@@ -1,4 +1,4 @@
-import Stock from '../models/Stock.js';
+import Stock from '../models/StockSchema.js';
 
 export const getHomeData = async (req, res) => {
     try {

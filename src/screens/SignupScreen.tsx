@@ -14,6 +14,14 @@ const SignupScreen = ({ navigation }: any) => {
         dispatch(handleUser({ [name]: value }))
     }
    
+    const registerScreen = ()=>{
+        const { userName, phone } = user ?? {};
+        if(!userName ||!phone){
+            Alert.alert('Error', 'Please fill all fields');
+            return;
+        }
+        navigation.navigate('registerScreen')
+    }
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
@@ -23,8 +31,8 @@ const SignupScreen = ({ navigation }: any) => {
             <View style={styles.topSection}>
                 <Text style={styles.title}>Hello! Register to get started</Text>
                 <TextInput style={styles.input} placeholder='User Name' value={user?.userName} onChangeText={val => handleChange('userName', val)} />
-                <TextInput keyboardType='number-pad' style={styles.input} placeholder='phone' value={user?.mobile as any} onChangeText={val => handleChange('mobile', val)} />
-                <TouchableHighlight onPress={()=>navigation.navigate('registerScreen')} style={styles.submitBtn}><Text style={styles.submitText}>Register now</Text></TouchableHighlight>
+                <TextInput keyboardType='number-pad' style={styles.input} placeholder='phone' value={user?.phone as any} onChangeText={val => handleChange('phone', val)} />
+                <TouchableHighlight onPress={()=>registerScreen()} style={styles.submitBtn}><Text style={styles.submitText}>Register now</Text></TouchableHighlight>
             </View>
             <View style={styles.bottomAction}>
                 <Text style={{ fontSize: 16 }}>Already have an account? </Text>

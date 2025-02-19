@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
     lng: string;
-    mobile: number;
+    phone: number;
     type: string;
     userName: string;
     kissanId?: string;
@@ -10,6 +10,7 @@ interface User {
     country?: string;
     state?: string;
     city?: string;
+    password?: string;
     village?: string;
     token: string;
 }

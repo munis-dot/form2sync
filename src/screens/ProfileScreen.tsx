@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function ProfileScreen() {
-  const navigation = useNavigation();
+export default function ProfileScreen({ navigation }) {
 
   const menuItems = [
     { name: 'Inventory', icon: 'inventory' },
@@ -27,7 +27,14 @@ export default function ProfileScreen() {
     { name: 'Category', icon: 'category' },
     { name: 'News', icon: 'article' },
     { name: 'Temperature', icon: 'thermostat' },
+    { name: 'Logout', icon: 'logout' },
   ];
+
+  const logout = ()=>{
+    AsyncStorage.removeItem('user');
+    AsyncStorage.setItem('isLoggedIn','true');
+    navigation.navigate('LngScreen')
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -52,7 +59,10 @@ export default function ProfileScreen() {
       {/* Menu Items */}
       <View style={styles.menuContainer}>
         {menuItems2.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.menuItem} onPress={() => Alert.alert(`${item.name} clicked`)}>
+          <TouchableOpacity key={index} style={styles.menuItem} onPress={() => {
+            if (item.name === 'Logout')  logout();
+            else Alert.alert(`${item.name} clicked`)
+          }}>
             <Icon name={item.icon} size={24} color="#2d6a4f" />
             <Text style={styles.menuText}>{item.name}</Text>
           </TouchableOpacity>
@@ -61,6 +71,7 @@ export default function ProfileScreen() {
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
