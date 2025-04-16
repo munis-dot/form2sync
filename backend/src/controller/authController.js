@@ -4,7 +4,7 @@ import { getAuth } from 'firebase-admin/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = 'form2sync'; 
+const JWT_SECRET = 'form2sync';
 
 export const sendOtp = async (req, res) => {
     const { phone } = req.body;
@@ -51,14 +51,14 @@ export const verifyOtp = async (req, res) => {
 
 // Signup (Register)
 export const signup = async (req, res) => {
-    const { type, kishanId, userName, address, phone, password } = req.body;
+    const { type, kisanId, userName, address, phone, password, farmName } = req.body;
 
     if (!password || password.length < 6) {
         return res.status(400).json({ message: 'Password must be at least 6 characters long' });
     }
 
-    if (type === 'former' && !kishanId) {
-        return res.status(400).json({ message: 'kishanId is required for former type users' });
+    if (type === 'farmer' && !kisanId) {
+        return res.status(400).json({ message: 'kisanId is required for former type users' });
     }
 
     try {
@@ -67,9 +67,10 @@ export const signup = async (req, res) => {
 
         const newUser = new User({
             type,
-            kishanId: type === 'former' ? kishanId : undefined,
+            kisanId: type === 'farmer' ? kisanId : undefined,
             userName,
             address,
+            farmName: type === 'farmer' ? farmName : '',
             phone,
             password: hashedPassword, // Store hashed password
         });
@@ -78,14 +79,14 @@ export const signup = async (req, res) => {
         res.status(201).json({ message: 'User registered successfully', user: newUser });
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.errorResponse.errmsg });
     }
 };
 
 // Login
 export const login = async (req, res) => {
     const { phone, password } = req.body;
-
+    console.log(req.body)
     if (!phone || !password) {
         return res.status(400).json({ message: 'Phone and password are required' });
     }
@@ -101,12 +102,14 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-
+        console.log(user)
+        const { type, userName, _id, farmName } = user;
         // Generate JWT token
-        const token = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ type, userName, phone: user.phone, _id, farmName }, JWT_SECRET, { expiresIn: '7d' });
 
         res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message });
     }
 };

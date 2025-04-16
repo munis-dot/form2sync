@@ -9,16 +9,16 @@ import firebase from '@react-native-firebase/app';
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Buffer } from "buffer";
-
-const decodeJWT = (token:string) => {
-  try {
-    const base64Url = token.split(".")[1]; // Get payload
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Fix encoding
-    return JSON.parse(Buffer.from(base64, "base64").toString("utf-8")); // Decode & parse JSON
-  } catch (error) {
-    console.error("Invalid JWT", error);
-    return null;
-  }
+import { login as loginSlice } from '../slice/authSlice'
+const decodeJWT = (token: string) => {
+    try {
+        const base64Url = token.split(".")[1]; // Get payload
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Fix encoding
+        return JSON.parse(Buffer.from(base64, "base64").toString("utf-8")); // Decode & parse JSON
+    } catch (error) {
+        console.error("Invalid JWT", error);
+        return null;
+    }
 };
 const LoginSCreen = ({ navigation }: any) => {
     const dispatch: AppDispatch = useDispatch();
@@ -33,14 +33,15 @@ const LoginSCreen = ({ navigation }: any) => {
             Alert.alert('Error', 'Please fill all fields')
             return
         }
-        axios.post('http://192.168.198.130:5000/auth/login', user
+        axios.post('http://192.168.14.130:5000/auth/login', user
         ).then(res => {
             Alert.alert('Success', res.data.message)
             const decoded = decodeJWT(res.data.token);
             console.log(decoded)
-            AsyncStorage.setItem('user', decoded)
+            AsyncStorage.setItem('user', JSON.stringify(decoded))
             AsyncStorage.setItem('isLoggedIn', 'true');
-            navigation.navigate(user?.type === 'farmer' ? 'HomeScreen' :'HomeScreen1');
+            dispatch(loginSlice(decoded))
+            navigation.navigate(user?.type === 'farmer' ? 'HomeScreen' : 'HomeScreen1');
         })
             .catch(err => {
                 Alert.alert('Error', err.message);
@@ -56,13 +57,13 @@ const LoginSCreen = ({ navigation }: any) => {
             </TouchableOpacity>
             <View style={styles.topSection}>
                 <Text style={styles.title}>Welcome back! Glad to see you, Again!</Text>
-                <TextInput style={styles.input} keyboardType='number-pad' placeholder='Phone number' value={user?.phone + ''} onChangeText={val => handleChange('phone', val)} />
+                <TextInput style={styles.input} keyboardType='number-pad' placeholder='Phone number' value={user?.phone as any} onChangeText={val => handleChange('phone', val)} />
                 <TextInput style={styles.input} secureTextEntry={true} placeholder='password' value={user?.password as any} onChangeText={val => handleChange('password', val)} />
                 <TouchableHighlight style={styles.submitBtn} onPress={() => login()}><Text style={styles.submitText}>Login</Text></TouchableHighlight>
             </View>
             <View style={styles.bottomAction}>
                 <Text style={{ fontSize: 16 }}>Don't have an account? </Text>
-                <TouchableOpacity onPress={()=>navigation.navigate('signupScreen')}><Text style={{ fontSize: 16, fontWeight: '500', color: '#29660C' }}>Register Now</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('signupScreen')}><Text style={{ fontSize: 16, fontWeight: '500', color: '#29660C' }}>Register Now</Text></TouchableOpacity>
             </View>
         </View>
         //     <View style={styles.container}>

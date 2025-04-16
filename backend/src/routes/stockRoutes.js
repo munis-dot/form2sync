@@ -1,11 +1,11 @@
 import express from 'express';
 import multer from 'multer';
-import { 
-    createStock, 
-    getAllStocks, 
-    getStockById, 
-    updateStock, 
-    deleteStock 
+import {
+    createStock,
+    getAllStocks,
+    getStockById,
+    updateStock,
+    deleteStock
 } from '../controller/stockController.js';
 
 const stockRoutes = express.Router();
@@ -16,7 +16,8 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
+        const filename = `${Date.now()}-${file.originalname}`;
+        cb(null, filename);
     }
 });
 

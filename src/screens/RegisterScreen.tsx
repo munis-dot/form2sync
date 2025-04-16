@@ -17,24 +17,24 @@ const RegisterScreen = ({ navigation }: any) => {
     }
 
     const register = () => {
-        if (!user?.userName || (user.type === 'farmer' && (!user?.kissanId || !user?.farmName)) || !user?.userName || !user?.phone) {
+        if (!user?.userName || (user.type === 'farmer' && (!user?.kisanId || !user?.farmName)) || !user?.userName || !user?.phone) {
             Alert.alert('Error', 'Please fill all fields')
             return
         }
         const { state, city, country, village, ...restUser } = user;
 
-        axios.post('http://192.168.198.130:5000/auth/signup', {
+        axios.post('http://192.168.14.130:5000/auth/signup', {
             ...restUser,
             address: { state, city, country, village }
         }).then(res => {
-            Alert.alert('Success', res.data.message)
-            AsyncStorage.setItem('user', res.data.user)
+            Alert.alert('Success', res.data.message);
+            AsyncStorage.setItem('user', JSON.stringify(res.data.user));
             AsyncStorage.setItem('isLoggedIn', 'true');
-            navigation.navigate(user?.type === 'farmer' ? 'HomeScreen' :'HomeScreen1');
+            navigation.navigate(user?.type === 'farmer' ? 'HomeScreen' : 'HomeScreen1');
         })
             .catch(err => {
-                Alert.alert('Error', err.message);
-                console.log(err)
+                Alert.alert('Error', err?.response?.data?.message);
+                console.log(err);
             })
     }
     console.log(user)
@@ -54,12 +54,12 @@ const RegisterScreen = ({ navigation }: any) => {
                         <Text style={styles.headerText}>Create Profile</Text>
                     </View>
                     <View style={styles.topSection}>
-                        <Image style={{ marginBottom: 30 }} source={require('../../assets/avatar.png')} />
+                        <Image style={{ marginBottom: 30 }} source={{uri:'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740'}} />
                         <TextInput style={styles.input} placeholder='User Name' value={user?.userName} onChangeText={val => handleChange('userName', val)} />
-                        <TextInput style={styles.input}  secureTextEntry={true}  placeholder='Password' value={user?.password} onChangeText={val => handleChange('password', val)} />
+                        <TextInput style={styles.input} secureTextEntry={true} placeholder='Password' value={user?.password} onChangeText={val => handleChange('password', val)} />
                         {user?.type === 'farmer' &&
                             <>
-                                <TextInput keyboardType='number-pad' style={styles.input} placeholder='kissan Id' value={user?.kissanId as any} onChangeText={val => handleChange('kissanId', val)} />
+                                <TextInput keyboardType='number-pad' style={styles.input} placeholder='kisan Id' value={user?.kisanId as any} onChangeText={val => handleChange('kisanId', val)} />
                                 <TextInput style={styles.input} placeholder='farm Name' value={user?.farmName as any} onChangeText={val => handleChange('farmName', val)} />
                             </>
                         }

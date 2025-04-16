@@ -1,76 +1,122 @@
-import { Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableHighlight, View } from 'react-native'
-import React from 'react'
+import { Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import ProductDetailsModal from '../components/ProductDetailsModal';
+
+interface StockItem {
+    id: string;
+    name: string;
+    category: string;
+    price: string;
+    quantity: number;
+    image: string;
+    productName: string;
+}
 
 const HomeScreen = ({ navigation }: any) => {
+    const [searchQuery, setSearchQuery] = useState('')
+    const [selectedCategory, setSelectedCategory] = useState('1');
+    const [selectedItem, setSelectedItem] = useState();
+    const [stockData, setStockData] = useState<StockItem[]>([])
+
+    const stockList = () => {
+        axios.get(`http://192.168.14.130:5000/stock?limit=10000&productName=${searchQuery}`)
+            .then(res => {
+                console.log(res.data.stocks)
+                setStockData(res.data.stocks)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }
+
+    useEffect(() => {
+        stockList()
+    }, [searchQuery])
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
             <View style={styles.header}>
                 <Text style={styles.quote}>Happy Farming</Text>
-                <TouchableHighlight onPress={() => navigation.navigate('profileScreen')}>
-                    <Image style={styles.avatar} source={require('../../assets/avatar.png')} />
-                </TouchableHighlight>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: '10' }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen')}>
+                        <Ionicons name='notifications-outline' size={30} />
+                    </TouchableOpacity>
+                    <TouchableHighlight onPress={() => navigation.navigate('profileScreen')}>
+                        <Image style={styles.avatar} source={{ uri: 'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740' }} />
+                    </TouchableHighlight>
+                </View>
             </View>
-            <TextInput placeholder='🔍 search' style={styles.search} />
+            <TouchableHighlight onPress={() => navigation.navigate('searchScreen')}>
+                <TextInput onChangeText={text => setSearchQuery(text)} placeholder='🔍 search' style={styles.search} />
+            </TouchableHighlight>
             <ScrollView>
                 <Image style={styles.banner} source={require('../../assets/banner2.png')} />
                 <Text style={styles.categoryText}>Popular Categories</Text>
                 <View style={{ flexDirection: 'row' }}>
-                    <View style={{ alignItems: 'center', marginLeft: 5, justifyContent:'center' }}>
-                        <View style={styles.catgIconWrapper}>
-                            <Image style={styles.catgIcon} source={require('../../assets/tomoto.png')} />
+                    <TouchableOpacity onPress={() => navigation.navigate('searchScreen', { category: 'vegetable' })}>
+                        <View style={{ alignItems: 'center', marginLeft: 5, justifyContent: 'center' }}>
+                            <View style={styles.catgIconWrapper}>
+                                <Image style={styles.catgIcon} source={require('../../assets/tomoto.png')} />
+                            </View>
+                            <Text style={styles.itemText}>Vegetables</Text>
                         </View>
-                        <Text style={styles.itemText}>Vegetables</Text>
-                    </View>
-                    <View style={{ alignItems: 'center' }}>
-                        <View style={styles.catgIconWrapper}>
-                            <Image style={styles.catgIcon} source={require('../../assets/mango.png')} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('searchScreen', { category: 'fruits' })}>
+
+                        <View style={{ alignItems: 'center' }}>
+                            <View style={styles.catgIconWrapper}>
+                                <Image style={styles.catgIcon} source={require('../../assets/mango.png')} />
+                            </View>
+                            <Text style={styles.itemText}>Fruits</Text>
                         </View>
-                        <Text style={styles.itemText}>Fruits</Text>
-                    </View>
-                    <View style={{ alignItems: 'center' }}>
-                        <View style={styles.catgIconWrapper}>
-                            <Image style={styles.catgIcon} source={require('../../assets/egg.png')} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('searchScreen', { category: 'dairy' })}>
+
+                        <View style={{ alignItems: 'center' }}>
+                            <View style={styles.catgIconWrapper}>
+                                <Image style={styles.catgIcon} source={require('../../assets/egg.png')} />
+                            </View>
+                            <Text style={styles.itemText}>Eggs and milk</Text>
                         </View>
-                        <Text style={styles.itemText}>Eggs and milk</Text>
-                    </View>
-                    <View style={{ alignItems: 'center' }}>
-                        <View style={styles.catgIconWrapper}>
-                            <Image style={styles.catgIcon} source={require('../../assets/nuts.png')} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('searchScreen', { category: 'grains' })}>
+
+                        <View style={{ alignItems: 'center' }}>
+                            <View style={styles.catgIconWrapper}>
+                                <Image style={styles.catgIcon} source={require('../../assets/nuts.png')} />
+                            </View>
+                            <Text style={styles.itemText}>Nuts</Text>
                         </View>
-                        <Text style={styles.itemText}>Nuts</Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
 
                 <Text style={styles.categoryText}>You Likes</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={styles.itemWrapper}>
-                        <Image style={styles.image} source={require('../../assets/mangos.jpg')} />
-                        <Text style={styles.itemText}>Mango</Text>
-                        <Text style={styles.price}>1kg ₹80/-</Text>
-                        <Text>Nivi farm House - sivakasi</Text>
-                    </View>
-                    <View style={styles.itemWrapper}>
-                        <Image style={styles.image} source={require('../../assets/carrot.jpg')} />
-                        <Text style={styles.itemText}>Carrot</Text>
-                        <Text style={styles.price}>1kg ₹50/-</Text>
-                        <Text>Munis farm House - Ooty</Text>
-                    </View>
-                    <View style={styles.itemWrapper}>
-                        <Image style={styles.image} source={require('../../assets/egg.jpg')} />
-                        <Text style={styles.itemText}>Egg</Text>
-                        <Text style={styles.price}>10 Pcs ₹80/-</Text>
-                        <Text>Nivi farm House - sivakasi</Text>
-                    </View>
-                    <View style={styles.itemWrapper}>
-                        <Image style={styles.image} source={require('../../assets/mangos.jpg')} />
-                        <Text style={styles.itemText}>Mango</Text>
-                        <Text style={styles.price}>1kg ₹80/-</Text>
-                        <Text>Nivi farm House - sivakasi</Text>
-                    </View>
+                    {
+                        stockData.map(item => {
+                            return (
+                                <TouchableOpacity onPress={() => setSelectedItem(item)}>
+                                    <View style={styles.itemWrapper}>
+                                        <Image style={styles.image} source={{ uri: `http://192.168.14.130:5000/${item.image}` }} />
+                                        <Text style={styles.itemText}>{item.productName}</Text>
+                                        <Text style={styles.price}>₹ {item.price}</Text>
+                                        <Text style={styles.itemText}>{item.farmName}</Text>
+                                    </View>
+                                </TouchableOpacity>
+
+                            )
+                        })
+                    }
+
                 </View>
             </ScrollView>
-
+            <ProductDetailsModal
+                visible={!!selectedItem}
+                onClose={() => setSelectedItem(null)}
+                productData={selectedItem}
+            />
         </View>
     )
 }

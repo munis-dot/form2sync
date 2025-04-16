@@ -3,6 +3,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import { Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import StockAddScreen from '../screens/StockAddScreen';
+import NewsScreen from '../screens/NewsScreen';
+import OrderManagementScreen from '../screens/OrderManagementScreen';
+import SearchScreen from '../screens/SearchScreen';
+import ChatScreen from '../screens/ChatScreen';
+import ChatListScreen from '../screens/ChatListScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,8 +29,8 @@ export default function BottomNavigator() {
             case 'News':
               iconName = 'article';
               break;
-            case 'Sale':
-              iconName = 'add'; // "+" icon for Sale tab
+            case 'StockAdd':
+              iconName = 'add'; // "+" icon for StockAdd tab
               break;
             case 'Msg':
               iconName = 'message';
@@ -47,16 +53,16 @@ export default function BottomNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="News" component={HomeScreen} />
+      <Tab.Screen name="News" component={NewsScreen} />
       <Tab.Screen
-        name="Sale"
-        component={HomeScreen}
+        name="StockAdd"
+        component={StockAddScreen}
         options={{
-          tabBarLabel: () => null, // Remove label for Sale tab
+          tabBarLabel: () => null, // Remove label for StockAdd tab
         }}
       />
-      <Tab.Screen name="Msg" component={HomeScreen} />
-      <Tab.Screen name="Orders" component={HomeScreen} />
+      <Tab.Screen name="Msg" component={ChatListScreen} />
+      <Tab.Screen name="Orders" component={OrderManagementScreen} />
     </Tab.Navigator>
   );
 }

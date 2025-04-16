@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#f7f7f7',
         borderRadius: 12,
-    },
+    },  
     topSection: {
         flexGrow: 1,
         justifyContent: 'flex-start',

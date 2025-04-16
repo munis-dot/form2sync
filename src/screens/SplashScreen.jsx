@@ -1,9 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Image, Animated, StyleSheet, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import { login } from '../slice/authSlice';
 
 const SplashScreen = ({ navigation }) => {
     const opacity = useRef(new Animated.Value(0)).current;
+    const dispatch = useDispatch();
 
     useEffect(() => {
         Animated.timing(opacity, {
@@ -17,9 +20,17 @@ const SplashScreen = ({ navigation }) => {
 
     const checkLogin = async () => {
         const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
+        const user = await AsyncStorage.getItem('user');
+        console.log("user", user)
+        user && dispatch(login(JSON.parse(user)))
         setTimeout(() => {
-            if (isLoggedIn) {
-                navigation.replace('HomeScreen');
+            if (isLoggedIn && user) {
+                if (JSON.parse(user).type == 'customer') {
+                    navigation.navigate('HomeScreen1')
+                }
+                else {
+                    navigation.replace('HomeScreen')
+                };
             } else {
                 navigation.replace('LngScreen');
             }
@@ -28,7 +39,7 @@ const SplashScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'}/>
+            <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
             <Animated.Image
                 source={require('../../assets/logo.png')} // Add your PNG image here
                 style={[styles.image, { opacity }]}

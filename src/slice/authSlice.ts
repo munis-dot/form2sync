@@ -5,7 +5,7 @@ interface User {
     phone: number;
     type: string;
     userName: string;
-    kissanId?: string;
+    kisanId?: string;
     farmName?: string;
     country?: string;
     state?: string;

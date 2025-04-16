@@ -3,32 +3,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import HomeScreen from '../screens/HomeScreen';
+import SearchScreen from '../screens/SearchScreen';
+import CartScreen from '../screens/CartScreen';
+import ChatListScreen from '../screens/ChatListScreen';
+import CategoryScreen from '../screens/CategoryScreen';
 
-// Placeholder components for the tabs
-
-const SearchScreen = () => (
-  <View>
-    <Text>Search Screen</Text>
-  </View>
-);
-
-const CategoryScreen = () => (
-  <View>
-    <Text>Category Screen</Text>
-  </View>
-);
-
-const MessageScreen = () => (
-  <View>
-    <Text>Message Screen</Text>
-  </View>
-);
-
-const CartScreen = () => (
-  <View>
-    <Text>Cart Screen</Text>
-  </View>
-);
 
 const Tab = createBottomTabNavigator();
 
@@ -46,8 +25,8 @@ export default function UserBottomNavigation() {
             case 'Home':
               iconName = 'home';
               break;
-            case 'Search':
-              iconName = 'search';
+            case 'Filter':
+              iconName = 'filter-alt';
               break;
             case 'Category':
               iconName = 'category';
@@ -73,9 +52,9 @@ export default function UserBottomNavigation() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Filter" component={SearchScreen} />
       <Tab.Screen name="Category" component={CategoryScreen} />
-      <Tab.Screen name="Message" component={MessageScreen} />
+      <Tab.Screen name="Message" component={ChatListScreen} />
       <Tab.Screen name="Cart" component={CartScreen} />
     </Tab.Navigator>
   );
